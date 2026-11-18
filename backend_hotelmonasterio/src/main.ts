@@ -2,11 +2,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
-// Modificado por Brayan
+// Configuración principal de la aplicación
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Activar validaciones globales de los DTO
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Configuración de Swagger
   const config = new DocumentBuilder()
     .setTitle('Hotel Monasterio')
     .setDescription('API de gestion del Hotel Monasterio')
@@ -18,4 +29,5 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
+
 void bootstrap();

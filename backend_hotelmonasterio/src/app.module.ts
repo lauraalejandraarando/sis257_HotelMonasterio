@@ -3,9 +3,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// Modificado por Brayan
+// Modulos desarrollados por Brayan
 import { HabitacionesModule } from './habitaciones/habitaciones.module';
 import { HuespedesModule } from './huespedes/huespedes.module';
+
+// Modulo desarrollado por Laura
+import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -69,9 +72,12 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
       synchronize: true,
     }),
 
-    // Modificado por Brayan
+    // Modulos de Brayan
     HabitacionesModule,
     HuespedesModule,
+
+    // Modulo de Laura
+    TiposHabitacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
