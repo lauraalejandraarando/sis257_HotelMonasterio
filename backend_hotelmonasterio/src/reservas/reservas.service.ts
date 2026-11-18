@@ -14,6 +14,8 @@ import { DetalleReserva } from '../entities/detalle-reserva.entity';
 import { Huesped } from '../entities/huesped.entity';
 import { Habitacion } from '../entities/habitacion.entity';
 
+import { PagosService } from '../pagos/pagos.service';
+
 import { CrearReservaDto } from './crear-reserva.dto';
 import { ActualizarReservaDto } from './actualizar-reserva.dto';
 
@@ -27,6 +29,8 @@ export class ReservasService {
     private readonly detallesReservaRepository: Repository<DetalleReserva>,
 
     private readonly dataSource: DataSource,
+
+    private readonly pagosService: PagosService,
   ) {}
 
   // Consultar todas las reservas
@@ -234,6 +238,16 @@ export class ReservasService {
   ): Promise<Reserva> {
     const formatoFecha = /^\d{4}-\d{2}-\d{2}$/;
 
+    // Procesar las cancelaciones mediante el módulo de pagos
+    if (dto.estado === 'cancelada') {
+      await this.pagosService.cancelarReserva(
+        id,
+        dto.observaciones,
+      );
+
+      return this.obtenerPorId(id);
+    }
+
     await this.dataSource.transaction(async (manager) => {
       const reservasRepository = manager.getRepository(Reserva);
       const huespedRepository = manager.getRepository(Huesped);
@@ -270,28 +284,6 @@ export class ReservasService {
         throw new BadRequestException(
           'Una reserva confirmada no puede volver al estado pendiente',
         );
-      }
-
-      // Las reservas confirmadas requieren el proceso de penalización
-      if (
-        reserva.estado === 'confirmada' &&
-        dto.estado === 'cancelada'
-      ) {
-        throw new BadRequestException(
-          'Las reservas confirmadas deben cancelarse mediante el proceso de penalización del módulo de pagos',
-        );
-      }
-
-      // Procesar la cancelación de una reserva pendiente
-      if (dto.estado === 'cancelada') {
-        reserva.estado = 'cancelada';
-
-        if (dto.observaciones !== undefined) {
-          reserva.observaciones = dto.observaciones;
-        }
-
-        await reservasRepository.save(reserva);
-        return;
       }
 
       // La confirmación se realizará desde el módulo de pagos

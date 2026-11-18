@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 // Modulos desarrollados por Brayan
 import { HabitacionesModule } from './habitaciones/habitaciones.module';
@@ -10,6 +11,7 @@ import { HuespedesModule } from './huespedes/huespedes.module';
 // Modulos desarrollados por Laura
 import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.module';
 import { ReservasModule } from './reservas/reservas.module';
+import { PagosModule } from './pagos/pagos.module';
 
 // Controlador y servicio principal
 import { AppController } from './app.controller';
@@ -42,6 +44,9 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
+    // Activar el programador de tareas
+    ScheduleModule.forRoot(),
 
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -82,6 +87,7 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     // Modulos de Laura
     TiposHabitacionModule,
     ReservasModule,
+    PagosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
