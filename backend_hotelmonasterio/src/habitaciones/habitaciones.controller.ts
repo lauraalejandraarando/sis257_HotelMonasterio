@@ -22,17 +22,19 @@ export class HabitacionesController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Listar habitaciones' })
   findAll() {
     return this.habitacionesService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Consultar habitacion por ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.habitacionesService.findOne(id);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Crear una habitacion' })
+  @ApiOperation({ summary: 'Registrar una habitacion' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -41,7 +43,7 @@ export class HabitacionesController {
         piso: { type: 'number', example: 1 },
         estado: { type: 'string', example: 'disponible' },
         observaciones: { type: 'string', example: 'Habitacion de prueba' },
-        tipoHabitacionId: { type: 'number', example: 1 },
+        tipoHabitacionId: { type: 'number', example: 2 },
       },
       required: ['numero', 'piso', 'tipoHabitacionId'],
     },
@@ -51,6 +53,22 @@ export class HabitacionesController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Modificar o desactivar una habitacion' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        numero: { type: 'string', example: '101' },
+        piso: { type: 'number', example: 1 },
+        estado: { type: 'string', example: 'inactiva' },
+        observaciones: {
+          type: 'string',
+          example: 'Habitacion modificada por Brayan',
+        },
+        tipoHabitacionId: { type: 'number', example: 2 },
+      },
+    },
+  })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: any,
@@ -59,6 +77,7 @@ export class HabitacionesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar habitacion' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.habitacionesService.remove(id);
   }
