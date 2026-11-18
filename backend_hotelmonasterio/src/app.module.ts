@@ -12,6 +12,7 @@ import { HuespedesModule } from './huespedes/huespedes.module';
 import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.module';
 import { ReservasModule } from './reservas/reservas.module';
 import { PagosModule } from './pagos/pagos.module';
+import { TiposIncidenteModule } from './tipos-incidente/tipos-incidente.module';
 
 // Controlador y servicio principal
 import { AppController } from './app.controller';
@@ -88,6 +89,7 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     TiposHabitacionModule,
     ReservasModule,
     PagosModule,
+    TiposIncidenteModule,
   ],
   controllers: [AppController],
   providers: [AppService],
