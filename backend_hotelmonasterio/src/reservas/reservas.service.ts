@@ -1,4 +1,4 @@
-
+﻿
 import {
   Injectable,
   NotFoundException,
@@ -97,7 +97,7 @@ export class ReservasService {
         const reservasRepository = manager.getRepository(Reserva);
         const detallesRepository = manager.getRepository(DetalleReserva);
 
-        // Verificar que el huésped exista y esté activo
+        // Verificar que el huÃ©sped exista y estÃ© activo
         const huesped = await huespedRepository.findOne({
           where: {
             id: dto.huespedId,
@@ -107,7 +107,7 @@ export class ReservasService {
 
         if (!huesped) {
           throw new NotFoundException(
-            'El huésped no existe o está inactivo',
+            'El huÃ©sped no existe o estÃ¡ inactivo',
           );
         }
 
@@ -116,7 +116,7 @@ export class ReservasService {
           (a, b) => a - b,
         );
 
-        // Bloquear las habitaciones durante la transacción
+        // Bloquear las habitaciones durante la transacciÃ³n
         const habitaciones = await habitacionesRepository
           .createQueryBuilder('habitacion')
           .leftJoinAndSelect(
@@ -132,21 +132,21 @@ export class ReservasService {
 
         if (habitaciones.length !== habitacionesIds.length) {
           throw new NotFoundException(
-            'Una o más habitaciones no existen',
+            'Una o mÃ¡s habitaciones no existen',
           );
         }
 
-        // Verificar estado y tipo de habitación
+        // Verificar estado y tipo de habitaciÃ³n
         for (const habitacion of habitaciones) {
           if (habitacion.estado !== 'disponible') {
             throw new ConflictException(
-              `La habitación ${habitacion.numero} no está disponible`,
+              `La habitaciÃ³n ${habitacion.numero} no estÃ¡ disponible`,
             );
           }
 
           if (!habitacion.tipoHabitacion.activo) {
             throw new BadRequestException(
-              `El tipo de habitación ${habitacion.numero} está inactivo`,
+              `El tipo de habitaciÃ³n ${habitacion.numero} estÃ¡ inactivo`,
             );
           }
         }
@@ -185,11 +185,11 @@ export class ReservasService {
 
         if (reservasEnConflicto > 0) {
           throw new ConflictException(
-            'Una o más habitaciones ya tienen una reserva para esas fechas',
+            'Una o mÃ¡s habitaciones ya tienen una reserva para esas fechas',
           );
         }
 
-        // Generar código de reserva
+        // Generar cÃ³digo de reserva
         const codigoReserva =
           `RES-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -238,7 +238,7 @@ export class ReservasService {
   ): Promise<Reserva> {
     const formatoFecha = /^\d{4}-\d{2}-\d{2}$/;
 
-    // Procesar las cancelaciones mediante el módulo de pagos
+    // Procesar las cancelaciones mediante el mÃ³dulo de pagos
     if (dto.estado === 'cancelada') {
       await this.pagosService.cancelarReserva(
         id,
@@ -286,14 +286,14 @@ export class ReservasService {
         );
       }
 
-      // La confirmación se realizará desde el módulo de pagos
+      // La confirmaciÃ³n se realizarÃ¡ desde el mÃ³dulo de pagos
       if (dto.estado === 'confirmada') {
         throw new BadRequestException(
-          'La reserva se confirmará automáticamente al registrar el anticipo mínimo del 50 %',
+          'La reserva se confirmarÃ¡ automÃ¡ticamente al registrar el anticipo mÃ­nimo del 50 %',
         );
       }
 
-      // Conservar las fechas actuales si no se envían nuevas
+      // Conservar las fechas actuales si no se envÃ­an nuevas
       const fechaEntrada =
         dto.fechaEntrada ?? reserva.fechaEntrada;
 
@@ -315,7 +315,7 @@ export class ReservasService {
         );
       }
 
-      // Verificar que el huésped exista y esté activo
+      // Verificar que el huÃ©sped exista y estÃ© activo
       const huespedId = dto.huespedId ?? reserva.huesped.id;
 
       const huesped = await huespedRepository.findOne({
@@ -327,11 +327,11 @@ export class ReservasService {
 
       if (!huesped) {
         throw new NotFoundException(
-          'El huésped no existe o está inactivo',
+          'El huÃ©sped no existe o estÃ¡ inactivo',
         );
       }
 
-      // Conservar las habitaciones actuales si no se envían nuevas
+      // Conservar las habitaciones actuales si no se envÃ­an nuevas
       const habitacionesIds = (
         dto.habitacionesIds ??
         reserva.detalles.map(
@@ -341,7 +341,7 @@ export class ReservasService {
 
       if (habitacionesIds.length === 0) {
         throw new BadRequestException(
-          'La reserva debe tener al menos una habitación',
+          'La reserva debe tener al menos una habitaciÃ³n',
         );
       }
 
@@ -361,21 +361,21 @@ export class ReservasService {
 
       if (habitaciones.length !== habitacionesIds.length) {
         throw new NotFoundException(
-          'Una o más habitaciones no existen',
+          'Una o mÃ¡s habitaciones no existen',
         );
       }
 
-      // Verificar estado y tipo de habitación
+      // Verificar estado y tipo de habitaciÃ³n
       for (const habitacion of habitaciones) {
         if (habitacion.estado !== 'disponible') {
           throw new ConflictException(
-            `La habitación ${habitacion.numero} no está disponible`,
+            `La habitaciÃ³n ${habitacion.numero} no estÃ¡ disponible`,
           );
         }
 
         if (!habitacion.tipoHabitacion.activo) {
           throw new BadRequestException(
-            `El tipo de habitación ${habitacion.numero} está inactivo`,
+            `El tipo de habitaciÃ³n ${habitacion.numero} estÃ¡ inactivo`,
           );
         }
       }
@@ -418,7 +418,7 @@ export class ReservasService {
 
       if (reservasEnConflicto > 0) {
         throw new ConflictException(
-          'Una o más habitaciones ya tienen una reserva para esas fechas',
+          'Una o mÃ¡s habitaciones ya tienen una reserva para esas fechas',
         );
       }
 
@@ -461,4 +461,117 @@ export class ReservasService {
 
     return this.obtenerPorId(id);
   }
+
+// Modificado por Brayan: realizar check-in
+async realizarCheckIn(id: number): Promise<Reserva> {
+  await this.dataSource.transaction(async (manager) => {
+    const reservasRepo = manager.getRepository(Reserva);
+    const habitacionesRepo = manager.getRepository(Habitacion);
+    const detallesRepo = manager.getRepository(DetalleReserva);
+
+    const reserva = await reservasRepo.findOne({
+      where: { id },
+      lock: { mode: 'pessimistic_write' },
+    });
+
+    if (!reserva) {
+      throw new NotFoundException('Reserva no encontrada');
+    }
+
+    if (reserva.estado !== 'confirmada') {
+      throw new BadRequestException(
+        'Solo se puede realizar check-in de una reserva confirmada',
+      );
+    }
+
+    const detalles = await detallesRepo.find({
+      where: { reserva: { id } },
+      relations: { habitacion: true },
+    });
+
+    if (detalles.length === 0) {
+      throw new BadRequestException(
+        'La reserva no tiene habitaciones asignadas',
+      );
+    }
+
+    for (const detalle of detalles) {
+      const habitacion = await habitacionesRepo.findOne({
+        where: { id: detalle.habitacion.id },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!habitacion || habitacion.estado !== 'disponible') {
+        throw new ConflictException(
+          'Una o más habitaciones no están disponibles',
+        );
+      }
+
+      habitacion.estado = 'ocupada';
+      await habitacionesRepo.save(habitacion);
+    }
+
+    reserva.estado = 'en curso';
+    await reservasRepo.save(reserva);
+  });
+
+  return this.obtenerPorId(id);
 }
+
+// Modificado por Brayan: realizar check-out
+async realizarCheckOut(id: number): Promise<Reserva> {
+  await this.dataSource.transaction(async (manager) => {
+    const reservasRepo = manager.getRepository(Reserva);
+    const habitacionesRepo = manager.getRepository(Habitacion);
+    const detallesRepo = manager.getRepository(DetalleReserva);
+
+    const reserva = await reservasRepo.findOne({
+      where: { id },
+      lock: { mode: 'pessimistic_write' },
+    });
+
+    if (!reserva) {
+      throw new NotFoundException('Reserva no encontrada');
+    }
+
+    if (reserva.estado !== 'en curso') {
+      throw new BadRequestException(
+        'Solo se puede realizar check-out de reservas en curso',
+      );
+    }
+
+    const detalles = await detallesRepo.find({
+      where: { reserva: { id } },
+      relations: { habitacion: true },
+    });
+
+    if (detalles.length === 0) {
+      throw new BadRequestException(
+        'La reserva no tiene habitaciones asignadas',
+      );
+    }
+
+    for (const detalle of detalles) {
+      const habitacion = await habitacionesRepo.findOne({
+        where: { id: detalle.habitacion.id },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!habitacion || habitacion.estado !== 'ocupada') {
+        throw new ConflictException(
+          'Una o más habitaciones no están ocupadas',
+        );
+      }
+
+      habitacion.estado = 'disponible';
+      await habitacionesRepo.save(habitacion);
+    }
+
+    reserva.estado = 'finalizada';
+    await reservasRepo.save(reserva);
+  });
+
+  return this.obtenerPorId(id);
+}
+}
+

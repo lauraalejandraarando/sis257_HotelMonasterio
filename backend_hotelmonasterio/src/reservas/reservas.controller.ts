@@ -1,5 +1,4 @@
-
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -30,10 +29,6 @@ export class ReservasController {
 
   @Get()
   @ApiOperation({ summary: 'Consultar todas las reservas' })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de reservas obtenida correctamente',
-  })
   obtenerTodas() {
     return this.reservasService.obtenerTodas();
   }
@@ -41,14 +36,6 @@ export class ReservasController {
   @Get(':id')
   @ApiOperation({ summary: 'Consultar una reserva por su ID' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Reserva encontrada',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Reserva no encontrada',
-  })
   obtenerPorId(
     @Param('id', ParseIntPipe) id: number,
   ) {
@@ -57,22 +44,6 @@ export class ReservasController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva reserva' })
-  @ApiResponse({
-    status: 201,
-    description: 'Reserva creada correctamente',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Datos de reserva inválidos',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Huésped o habitación no encontrados',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'Habitación ocupada para esas fechas',
-  })
   crear(@Body() dto: CrearReservaDto) {
     return this.reservasService.crear(dto);
   }
@@ -80,22 +51,6 @@ export class ReservasController {
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar una reserva existente' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Reserva actualizada correctamente',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Datos de reserva inválidos',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Reserva no encontrada',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'Habitación ocupada para esas fechas',
-  })
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ActualizarReservaDto,
@@ -103,19 +58,31 @@ export class ReservasController {
     return this.reservasService.actualizar(id, dto);
   }
 
+  // Modificado por Brayan: realizar check-in
+  @Patch(':id/check-in')
+  @ApiOperation({ summary: 'Realizar check-in de una reserva' })
+  @ApiParam({ name: 'id', type: Number })
+  checkIn(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.reservasService.realizarCheckIn(id);
+  }
+
+  // Modificado por Brayan: realizar check-out
+  @Patch(':id/check-out')
+  @ApiOperation({ summary: 'Realizar check-out de una reserva' })
+  @ApiParam({ name: 'id', type: Number })
+  checkOut(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.reservasService.realizarCheckOut(id);
+  }
+
   @Delete(':id')
   @ApiOperation({
     summary: 'Cancelar una reserva sin eliminar su historial',
   })
   @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({
-    status: 200,
-    description: 'Reserva cancelada correctamente',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Reserva no encontrada',
-  })
   eliminar(
     @Param('id', ParseIntPipe) id: number,
   ) {

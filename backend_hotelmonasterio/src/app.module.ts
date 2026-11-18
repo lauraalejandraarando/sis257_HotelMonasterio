@@ -1,4 +1,4 @@
-
+﻿
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +13,8 @@ import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.modul
 import { ReservasModule } from './reservas/reservas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { TiposIncidenteModule } from './tipos-incidente/tipos-incidente.module';
+import { ServiciosAdicionalesModule } from './servicios-adicionales/servicios-adicionales.module';
+import { CajaModule } from './caja/caja.module';
 
 // Controlador y servicio principal
 import { AppController } from './app.controller';
@@ -90,8 +92,11 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     ReservasModule,
     PagosModule,
     TiposIncidenteModule,
+    ServiciosAdicionalesModule,
+    CajaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
