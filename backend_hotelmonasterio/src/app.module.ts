@@ -2,6 +2,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+// Modificado por Brayan
+import { HabitacionesModule } from './habitaciones/habitaciones.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -64,6 +66,9 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
       ],
       synchronize: true,
     }),
+
+    // Modificado por Brayan
+    HabitacionesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
