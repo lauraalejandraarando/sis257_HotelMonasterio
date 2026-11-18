@@ -4,12 +4,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Huesped } from './huesped.entity';
+import { DetalleReserva } from './detalle-reserva.entity';
 
 @Entity('reservas')
 export class Reserva {
@@ -20,10 +22,10 @@ export class Reserva {
   codigoReserva: string;
 
   @Column({ name: 'fecha_entrada', type: 'date' })
-  fechaEntrada: Date;
+  fechaEntrada: string;
 
   @Column({ name: 'fecha_salida', type: 'date' })
-  fechaSalida: Date;
+  fechaSalida: string;
 
   @Column({ name: 'cantidad_huespedes', type: 'int' })
   cantidadHuespedes: number;
@@ -34,9 +36,23 @@ export class Reserva {
   @Column({ type: 'text', nullable: true })
   observaciones: string;
 
+  // Fecha y hora límite para realizar el anticipo
+  @Column({
+    name: 'fecha_limite_pago',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  fechaLimitePago: Date;
+
   @ManyToOne(() => Huesped, { nullable: false })
   @JoinColumn({ name: 'huesped_id' })
   huesped: Huesped;
+
+  @OneToMany(
+    () => DetalleReserva,
+    (detalle) => detalle.reserva,
+  )
+  detalles: DetalleReserva[];
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;

@@ -7,12 +7,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HabitacionesModule } from './habitaciones/habitaciones.module';
 import { HuespedesModule } from './huespedes/huespedes.module';
 
-// Modulo desarrollado por Laura
+// Modulos desarrollados por Laura
 import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.module';
+import { ReservasModule } from './reservas/reservas.module';
 
+// Controlador y servicio principal
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+// Entidades
 import { TipoHabitacion } from './entities/tipo-habitacion.entity';
 import { Habitacion } from './entities/habitacion.entity';
 import { Huesped } from './entities/huesped.entity';
@@ -76,8 +79,9 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     HabitacionesModule,
     HuespedesModule,
 
-    // Modulo de Laura
+    // Modulos de Laura
     TiposHabitacionModule,
+    ReservasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
