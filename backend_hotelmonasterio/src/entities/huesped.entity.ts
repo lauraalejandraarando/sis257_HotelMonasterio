@@ -36,6 +36,10 @@ export class Huesped {
   @Column({ type: 'text', nullable: true })
   direccion: string;
 
+  // Modificado por Brayan
+  @Column({ type: 'boolean', default: true })
+  estado: boolean;
+
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
 

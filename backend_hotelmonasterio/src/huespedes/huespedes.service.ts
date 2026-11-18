@@ -1,3 +1,4 @@
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -41,10 +42,13 @@ export class HuespedesService {
     return this.huespedRepository.save(huesped);
   }
 
+  // Modificado por Brayan
   async remove(id: number) {
     const huesped = await this.findOne(id);
-    await this.huespedRepository.remove(huesped);
 
-    return { mensaje: 'Huesped eliminado correctamente' };
+    huesped.estado = false;
+    await this.huespedRepository.save(huesped);
+
+    return { mensaje: 'Huesped desactivado correctamente' };
   }
 }
