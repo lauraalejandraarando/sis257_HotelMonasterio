@@ -3,6 +3,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { APP_GUARD } from '@nestjs/core';
+
+// Seguridad
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 // Modulos desarrollados por Brayan
 import { HabitacionesModule } from './habitaciones/habitaciones.module';
@@ -15,6 +19,7 @@ import { PagosModule } from './pagos/pagos.module';
 import { CajaModule } from './caja/caja.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { AuthModule } from './auth/auth.module';
 
 // Controlador y servicio principal
 import { AppController } from './app.controller';
@@ -48,7 +53,6 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
       isGlobal: true,
     }),
 
-    // Activar el programador de tareas
     ScheduleModule.forRoot(),
 
     TypeOrmModule.forRoot({
@@ -94,12 +98,17 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     CajaModule,
     ReportesModule,
     UsuariosModule,
+    AuthModule,
   ],
+
   controllers: [AppController],
-  providers: [AppService],
+
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
-
-
-
-
