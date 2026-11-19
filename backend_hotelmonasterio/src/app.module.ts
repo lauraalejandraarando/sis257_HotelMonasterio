@@ -12,9 +12,9 @@ import { HuespedesModule } from './huespedes/huespedes.module';
 import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.module';
 import { ReservasModule } from './reservas/reservas.module';
 import { PagosModule } from './pagos/pagos.module';
-import { TiposIncidenteModule } from './tipos-incidente/tipos-incidente.module';
-import { ServiciosAdicionalesModule } from './servicios-adicionales/servicios-adicionales.module';
 import { CajaModule } from './caja/caja.module';
+import { ReportesModule } from './reportes/reportes.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 // Controlador y servicio principal
 import { AppController } from './app.controller';
@@ -91,12 +91,15 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     TiposHabitacionModule,
     ReservasModule,
     PagosModule,
-    TiposIncidenteModule,
-    ServiciosAdicionalesModule,
     CajaModule,
+    ReportesModule,
+    UsuariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
+
+
 
