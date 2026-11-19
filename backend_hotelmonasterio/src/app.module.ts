@@ -3,6 +3,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { APP_GUARD } from '@nestjs/core';
+
+// Modificado por Brayan: seguridad y autenticacion
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 // Modulos desarrollados por Brayan
 import { HabitacionesModule } from './habitaciones/habitaciones.module';
@@ -34,8 +39,6 @@ import { SolicitudMantenimiento } from './entities/solicitud-mantenimiento.entit
 import { ConfiguracionHotel } from './entities/configuracion-hotel.entity';
 import { TarifaServicio } from './entities/tarifa-servicio.entity';
 import { ServicioAdicional } from './entities/servicio-adicional.entity';
-
-
 import { Usuario } from './entities/usuario.entity';
 import { RegistroAuditoria } from './entities/registro-auditoria.entity';
 import { SesionUsuario } from './entities/sesion-usuario.entity';
@@ -70,8 +73,7 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
         ConfiguracionHotel,
         TarifaServicio,
         ServicioAdicional,
-
-          Usuario,
+        Usuario,
         RegistroAuditoria,
         SesionUsuario,
       ],
@@ -86,8 +88,20 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
     TiposHabitacionModule,
     ReservasModule,
     PagosModule,
+
+    // Modificado por Brayan: registro del modulo de autenticacion
+    AuthModule,
   ],
+
   controllers: [AppController],
-  providers: [AppService],
+
+  // Modificado por Brayan: proteccion global mediante JWT
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
