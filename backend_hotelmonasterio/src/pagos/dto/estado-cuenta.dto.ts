@@ -18,6 +18,8 @@ export class EstadoCuentaDto {
   porcentajePagado: number;
 
   @ApiProperty({
+
+    
     example: true,
     description: 'Indica si el huésped ya pagó al menos el 50%',
   })

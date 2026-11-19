@@ -22,6 +22,40 @@ import { useHotelStore } from '../stores/hotelStore'
 const API = 'http://localhost:3000'
 const hotelStore = useHotelStore()
 
+// MODIFICADO POR BRAYAN: Tipos predeterminados con imágenes ilustrativas.
+const tiposPredeterminidos = [
+  {
+    nombre: 'Simple',
+    capacidad: 1,
+    imagen: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=85',
+    descripcion: 'Habitación cómoda para una persona.'
+  },
+  {
+    nombre: 'Doble',
+    capacidad: 2,
+    imagen: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=85',
+    descripcion: 'Habitación con dos camas individuales.'
+  },
+  {
+    nombre: 'Triple',
+    capacidad: 3,
+    imagen: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=85',
+    descripcion: 'Habitación amplia para tres huéspedes.'
+  },
+  {
+    nombre: 'Matrimonial',
+    capacidad: 2,
+    imagen: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=85',
+    descripcion: 'Habitación con cama matrimonial.'
+  },
+  {
+    nombre: 'Suite',
+    capacidad: 2,
+    imagen: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=85',
+    descripcion: 'Habitación superior con mayor comodidad.'
+  }
+]
+
 const tipos = ref([])
 const cargando = ref(false)
 const guardando = ref(false)
@@ -65,6 +99,22 @@ const tiposFiltrados = computed(() => {
 const totalTipos = computed(() => tipos.value.length)
 const tiposActivos = computed(() => tipos.value.filter(t => t.activo).length)
 const tiposInactivos = computed(() => tipos.value.filter(t => !t.activo).length)
+
+// MODIFICADO POR BRAYAN: Identificar la fotografía según el nombre del tipo.
+function imagenTipo(nombre) {
+  const encontrado = tiposPredeterminidos.find(
+    t => t.nombre.toLowerCase() === String(nombre || '').toLowerCase()
+  )
+
+  return encontrado?.imagen || tiposPredeterminidos[0].imagen
+}
+
+// MODIFICADO POR BRAYAN: Seleccionar tipo y completar capacidad automáticamente.
+function seleccionarTipo(tipo) {
+  formulario.value.nombre = tipo.nombre
+  formulario.value.capacidad = tipo.capacidad
+  formulario.value.descripcion = tipo.descripcion
+}
 
 function limpiarMensajes() {
   mensaje.value = ''
@@ -156,7 +206,7 @@ async function guardarTipo() {
   limpiarMensajes()
 
   if (!formulario.value.nombre.trim()) {
-    error.value = 'Debes ingresar el nombre del tipo de habitación.'
+    error.value = 'Debes seleccionar un tipo de habitación.'
     return
   }
 
@@ -377,6 +427,7 @@ onMounted(cargarTipos)
         <table>
           <thead>
             <tr>
+              <th>IMAGEN</th>
               <th>NOMBRE</th>
               <th>CAPACIDAD</th>
               <th>TIPO DE BAÑO</th>
@@ -389,6 +440,14 @@ onMounted(cargarTipos)
 
           <tbody>
             <tr v-for="tipo in tiposFiltrados" :key="tipo.id">
+              <td>
+                <img
+                  class="table-room-image"
+                  :src="imagenTipo(tipo.nombre)"
+                  :alt="tipo.nombre"
+                />
+              </td>
+
               <td>
                 <strong class="type-name">{{ tipo.nombre }}</strong>
               </td>
@@ -463,7 +522,7 @@ onMounted(cargarTipos)
             <p>
               {{ editando
                 ? 'Modifica las características y tarifas del tipo.'
-                : 'Completa los datos para crear una nueva categoría.' }}
+                : 'Selecciona una categoría para comenzar.' }}
             </p>
           </div>
 
@@ -478,18 +537,45 @@ onMounted(cargarTipos)
         </div>
 
         <form @submit.prevent="guardarTipo">
-          <div class="form-grid">
 
-            <div class="form-field full">
-              <label>Nombre del tipo de habitación *</label>
-              <input
-                v-model="formulario.nombre"
-                type="text"
-                maxlength="100"
-                placeholder="Ej. Simple, Doble, Suite..."
-                required
-              />
+          <!-- MODIFICADO POR BRAYAN: Selección visual de categorías con fotografías. -->
+          <div class="form-field full">
+            <label>Selecciona el tipo de habitación *</label>
+
+            <div class="room-options">
+              <button
+                v-for="opcion in tiposPredeterminidos"
+                :key="opcion.nombre"
+                type="button"
+                class="room-option"
+                :class="{ selected: formulario.nombre === opcion.nombre }"
+                :aria-pressed="formulario.nombre === opcion.nombre"
+                @click="seleccionarTipo(opcion)"
+              >
+                <img :src="opcion.imagen" :alt="opcion.nombre" />
+
+                <span class="room-option-info">
+                  <strong>{{ opcion.nombre }}</strong>
+                  <small>
+                    {{ opcion.capacidad }}
+                    {{ opcion.capacidad === 1 ? 'huésped' : 'huéspedes' }}
+                  </small>
+                </span>
+
+                <CheckCircle2
+                  v-if="formulario.nombre === opcion.nombre"
+                  class="selected-check"
+                  :size="21"
+                />
+              </button>
             </div>
+
+            <small class="selection-help">
+              Selecciona una fotografía para elegir la categoría.
+            </small>
+          </div>
+
+          <div class="form-grid">
 
             <div class="form-field">
               <label>Capacidad de huéspedes *</label>
@@ -865,6 +951,16 @@ tbody tr:hover {
   font-size: 12px;
 }
 
+/* MODIFICADO POR BRAYAN: Fotografías en el listado. */
+.table-room-image {
+  width: 76px;
+  height: 53px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  box-shadow: 0 3px 8px rgba(7,24,39,0.12);
+}
+
 .capacity,
 .bath-type,
 .price {
@@ -1023,7 +1119,7 @@ tbody tr:hover {
 }
 
 .modal {
-  width: min(100%, 570px);
+  width: min(100%, 700px);
   max-height: 90vh;
   overflow-y: auto;
   background: #FDFDFC;
@@ -1077,6 +1173,77 @@ tbody tr:hover {
   font-size: 11px;
   font-weight: 700;
   color: #263B32;
+}
+
+/* MODIFICADO POR BRAYAN: Tarjetas visuales de selección. */
+.room-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.room-option {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  background: white;
+  border: 2px solid #E3E9E4;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-family: inherit;
+}
+
+.room-option:hover {
+  transform: translateY(-3px);
+  border-color: #9CB8A5;
+  box-shadow: 0 7px 17px rgba(7,24,39,0.09);
+}
+
+.room-option.selected {
+  border-color: #16834C;
+  box-shadow: 0 0 0 2px rgba(22,131,76,0.12);
+}
+
+.room-option img {
+  width: 100%;
+  height: 105px;
+  display: block;
+  object-fit: cover;
+}
+
+.room-option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 11px;
+}
+
+.room-option-info strong {
+  color: #071827;
+  font-size: 13px;
+}
+
+.room-option-info small {
+  color: #718078;
+  font-size: 10px;
+}
+
+.selected-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: white;
+  background: #16834C;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.selection-help {
+  color: #718078;
+  font-size: 10px;
 }
 
 .form-field input,
@@ -1146,6 +1313,14 @@ tbody tr:hover {
 
   .form-field.full {
     grid-column: auto;
+  }
+
+  .room-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .room-option img {
+    height: 95px;
   }
 
   .modal {

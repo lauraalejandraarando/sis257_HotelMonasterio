@@ -1,25 +1,20 @@
-﻿
+
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { APP_GUARD } from '@nestjs/core';
-
-// Seguridad
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 // Modulos desarrollados por Brayan
 import { HabitacionesModule } from './habitaciones/habitaciones.module';
 import { HuespedesModule } from './huespedes/huespedes.module';
+import { CajaModule } from './caja/caja.module';
+import { ReportesModule } from './reportes/reportes.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 // Modulos desarrollados por Laura
 import { TiposHabitacionModule } from './tipos-habitacion/tipos-habitacion.module';
 import { ReservasModule } from './reservas/reservas.module';
 import { PagosModule } from './pagos/pagos.module';
-import { CajaModule } from './caja/caja.module';
-import { ReportesModule } from './reportes/reportes.module';
-import { UsuariosModule } from './usuarios/usuarios.module';
-import { AuthModule } from './auth/auth.module';
 
 // Controlador y servicio principal
 import { AppController } from './app.controller';
@@ -39,14 +34,13 @@ import { SolicitudMantenimiento } from './entities/solicitud-mantenimiento.entit
 import { ConfiguracionHotel } from './entities/configuracion-hotel.entity';
 import { TarifaServicio } from './entities/tarifa-servicio.entity';
 import { ServicioAdicional } from './entities/servicio-adicional.entity';
-import { GuardaEquipaje } from './entities/guarda-equipaje.entity';
-import { DetalleEquipaje } from './entities/detalle-equipaje.entity';
-import { TipoIncidente } from './entities/tipo-incidente.entity';
-import { Incidente } from './entities/incidente.entity';
+
+
 import { Usuario } from './entities/usuario.entity';
 import { RegistroAuditoria } from './entities/registro-auditoria.entity';
 import { SesionUsuario } from './entities/sesion-usuario.entity';
 
+// Modificado por Brayan
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -76,39 +70,24 @@ import { SesionUsuario } from './entities/sesion-usuario.entity';
         ConfiguracionHotel,
         TarifaServicio,
         ServicioAdicional,
-        GuardaEquipaje,
-        DetalleEquipaje,
-        TipoIncidente,
-        Incidente,
-        Usuario,
+
+          Usuario,
         RegistroAuditoria,
         SesionUsuario,
       ],
       synchronize: true,
     }),
 
-    // Modulos de Brayan
     HabitacionesModule,
     HuespedesModule,
-
-    // Modulos de Laura
-    TiposHabitacionModule,
-    ReservasModule,
-    PagosModule,
     CajaModule,
     ReportesModule,
     UsuariosModule,
-    AuthModule,
+    TiposHabitacionModule,
+    ReservasModule,
+    PagosModule,
   ],
-
   controllers: [AppController],
-
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

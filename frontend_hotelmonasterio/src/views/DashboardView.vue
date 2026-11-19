@@ -40,6 +40,85 @@
       </div>
     </section>
 
+    <!-- MODIFICADO POR BRAYAN: ACCIONES RAPIDAS -->
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <span class="section-label">GESTIÓN DEL HOTEL</span>
+          <h2>Acciones rápidas</h2>
+          <p>Accede directamente a las operaciones principales de recepción.</p>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <router-link to="/reservas" class="quick-action">
+          <div class="quick-action-icon">
+            <CalendarCheck :size="23" />
+          </div>
+          <div class="quick-action-content">
+            <strong>Nueva reserva</strong>
+            <span>Registrar y administrar reservas</span>
+          </div>
+          <span class="quick-arrow">›</span>
+        </router-link>
+
+        <router-link to="/huespedes" class="quick-action">
+          <div class="quick-action-icon">
+            <UsersRound :size="23" />
+          </div>
+          <div class="quick-action-content">
+            <strong>Registrar huésped</strong>
+            <span>Registrar y consultar huéspedes</span>
+          </div>
+          <span class="quick-arrow">›</span>
+        </router-link>
+
+        <router-link to="/habitaciones" class="quick-action">
+          <div class="quick-action-icon">
+            <BedDouble :size="23" />
+          </div>
+          <div class="quick-action-content">
+            <strong>Habitaciones</strong>
+            <span>Consultar disponibilidad y estado</span>
+          </div>
+          <span class="quick-arrow">›</span>
+        </router-link>
+
+        <router-link to="/check-in-out" class="quick-action">
+          <div class="quick-action-icon">
+            <LogIn :size="23" />
+          </div>
+          <div class="quick-action-content">
+            <strong>Check-in / Check-out</strong>
+            <span>Gestionar entradas y salidas</span>
+          </div>
+          <span class="quick-arrow">›</span>
+        </router-link>
+
+        <router-link to="/pagos" class="quick-action">
+          <div class="quick-action-icon">
+            <CreditCard :size="23" />
+          </div>
+          <div class="quick-action-content">
+            <strong>Registrar pago</strong>
+            <span>Consultar pagos y saldos</span>
+          </div>
+          <span class="quick-arrow">›</span>
+        </router-link>
+
+        <router-link to="/caja" class="quick-action">
+          <div class="quick-action-icon">
+            <Wallet :size="23" />
+          </div>
+          <div class="quick-action-content">
+            <strong>Control de caja</strong>
+            <span>Consultar turnos y movimientos</span>
+          </div>
+          <span class="quick-arrow">›</span>
+        </router-link>
+      </div>
+    </section>
+
     <!-- ESTADO DE ACTUALIZACIÓN -->
     <div v-if="errorDashboard" class="dashboard-message error-message">
       {{ errorDashboard }}
@@ -56,12 +135,12 @@
         <div>
           <span class="section-label">VISTA GENERAL</span>
           <h2>Resumen del establecimiento</h2>
-          <p>Indicadores principales de actividad hotelera.</p>
+          <p>Selecciona un indicador para consultar sus detalles.</p>
         </div>
       </div>
 
       <div class="stats-grid">
-        <article class="stat-card">
+        <router-link to="/habitaciones" class="stat-card">
           <div class="stat-icon">
             <BedDouble :size="23" />
           </div>
@@ -70,9 +149,9 @@
             <strong>{{ habitacionesTotal }}</strong>
             <small>{{ habitacionesDisponibles }} disponibles · {{ habitacionesOcupadas }} ocupadas</small>
           </div>
-        </article>
+        </router-link>
 
-        <article class="stat-card">
+        <router-link to="/reservas" class="stat-card">
           <div class="stat-icon">
             <CalendarCheck :size="23" />
           </div>
@@ -81,9 +160,9 @@
             <strong>{{ reservasDelDia }}</strong>
             <small>Entradas previstas para hoy</small>
           </div>
-        </article>
+        </router-link>
 
-        <article class="stat-card">
+        <router-link to="/huespedes" class="stat-card">
           <div class="stat-icon">
             <UsersRound :size="23" />
           </div>
@@ -92,7 +171,7 @@
             <strong>{{ huespedesAlojados }}</strong>
             <small>Huéspedes actualmente en el hotel</small>
           </div>
-        </article>
+        </router-link>
       </div>
     </section>
 
@@ -102,12 +181,12 @@
         <div>
           <span class="section-label">OPERACIONES DEL HOTEL</span>
           <h2>Actividad diaria</h2>
-          <p>Información para el control de recepción.</p>
+          <p>Selecciona una operación para gestionarla.</p>
         </div>
       </div>
 
       <div class="activity-grid">
-        <article class="info-card">
+        <router-link to="/check-in-out" class="info-card">
           <div class="info-heading">
             <div class="info-icon">
               <LogIn :size="21" />
@@ -117,9 +196,10 @@
           <h3>Llegadas previstas</h3>
           <strong class="info-number">{{ llegadasPrevistas }}</strong>
           <p>Check-in confirmados para hoy</p>
-        </article>
+          <span class="card-action">Gestionar entradas →</span>
+        </router-link>
 
-        <article class="info-card">
+        <router-link to="/check-in-out" class="info-card">
           <div class="info-heading">
             <div class="info-icon">
               <LogOut :size="21" />
@@ -129,9 +209,10 @@
           <h3>Salidas previstas</h3>
           <strong class="info-number">{{ salidasPrevistas }}</strong>
           <p>Check-out previstos para hoy</p>
-        </article>
+          <span class="card-action">Gestionar salidas →</span>
+        </router-link>
 
-        <article class="info-card">
+        <router-link to="/reservas" class="info-card">
           <div class="info-heading">
             <div class="info-icon">
               <CalendarClock :size="21" />
@@ -141,7 +222,8 @@
           <h3>Reservas pendientes</h3>
           <strong class="info-number">{{ reservasPendientes }}</strong>
           <p>Reservas que requieren seguimiento</p>
-        </article>
+          <span class="card-action">Ver reservas →</span>
+        </router-link>
       </div>
     </section>
 
@@ -151,43 +233,74 @@
         <div>
           <span class="section-label">SEGUIMIENTO</span>
           <h2>Alertas y pendientes</h2>
-          <p>Situaciones que requieren atención del personal.</p>
+          <p>Selecciona una alerta para revisar su información.</p>
         </div>
       </div>
 
       <div class="alerts-grid">
-        <article class="alert-card">
+        <router-link to="/pagos" class="alert-card">
           <div class="alert-icon">
             <CreditCard :size="21" />
           </div>
-          <div>
+          <div class="alert-description">
             <strong>Pagos pendientes</strong>
             <p>Reservas con saldo pendiente de pago.</p>
           </div>
           <span class="alert-value">{{ pagosPendientes }}</span>
-        </article>
+        </router-link>
 
-        <article class="alert-card">
+        <router-link to="/reservas" class="alert-card">
           <div class="alert-icon">
             <CalendarClock :size="21" />
           </div>
-          <div>
+          <div class="alert-description">
             <strong>Reservas provisionales</strong>
             <p>Reservas pendientes de confirmación.</p>
           </div>
           <span class="alert-value">{{ reservasProvisionales }}</span>
-        </article>
+        </router-link>
 
-        <article class="alert-card">
+        <router-link to="/caja" class="alert-card">
           <div class="alert-icon">
             <Wallet :size="21" />
           </div>
-          <div>
+          <div class="alert-description">
             <strong>Movimientos de caja</strong>
             <p>Movimientos registrados durante el día.</p>
           </div>
           <span class="alert-value">{{ movimientosCaja }}</span>
-        </article>
+        </router-link>
+      </div>
+    </section>
+
+    <!-- ACCESOS ADICIONALES -->
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <span class="section-label">ADMINISTRACIÓN</span>
+          <h2>Otros módulos</h2>
+          <p>Más herramientas para administrar el establecimiento.</p>
+        </div>
+      </div>
+
+      <div class="other-modules">
+        <router-link to="/tipos-habitacion" class="module-link">
+          <BedDouble :size="19" />
+          Tipos de habitación
+          <span>→</span>
+        </router-link>
+
+        <router-link to="/reportes" class="module-link">
+          <CalendarDays :size="19" />
+          Reportes
+          <span>→</span>
+        </router-link>
+
+        <router-link to="/usuarios" class="module-link">
+          <UserRound :size="19" />
+          Usuarios
+          <span>→</span>
+        </router-link>
       </div>
     </section>
 
@@ -609,6 +722,71 @@ h1 {
   box-shadow: 0 0 8px #00FF66;
 }
 
+/* MODIFICADO POR BRAYAN: ACCIONES RAPIDAS */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  padding: 17px;
+  color: inherit;
+  text-decoration: none;
+  background: #FFFFFF;
+  border: 1px solid #E6E7E1;
+  border-radius: 13px;
+  transition: all 0.2s ease;
+}
+
+.quick-action:hover {
+  border-color: #B08D57;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(7, 24, 39, 0.08);
+}
+
+.quick-action-icon {
+  width: 45px;
+  height: 45px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #00FF66;
+  background: #071827;
+  border-radius: 11px;
+}
+
+.quick-action-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.quick-action-content strong,
+.quick-action-content span {
+  display: block;
+}
+
+.quick-action-content strong {
+  color: #071827;
+  font-size: 12px;
+}
+
+.quick-action-content span {
+  color: #829087;
+  font-size: 10px;
+  margin-top: 5px;
+}
+
+.quick-arrow {
+  color: #B08D57;
+  font-size: 25px;
+  font-weight: bold;
+}
+
 /* MENSAJES */
 .dashboard-message {
   padding: 12px 16px;
@@ -682,6 +860,8 @@ h1 {
   gap: 13px;
   min-width: 0;
   padding: 20px 16px;
+  color: inherit;
+  text-decoration: none;
   background: #FFFFFF;
   border: 1px solid #E6E7E1;
   border-radius: 14px;
@@ -740,10 +920,20 @@ h1 {
 }
 
 .info-card {
+  display: block;
   padding: 19px;
+  color: inherit;
+  text-decoration: none;
   background: #FFFFFF;
   border: 1px solid #E6E7E1;
   border-radius: 14px;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  border-color: #B08D57;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(7, 24, 39, 0.06);
 }
 
 .info-heading {
@@ -788,6 +978,14 @@ h1 {
   margin: 5px 0 0;
 }
 
+.card-action {
+  display: inline-block;
+  margin-top: 14px;
+  color: #00A84F;
+  font-size: 10px;
+  font-weight: 800;
+}
+
 /* ALERTAS */
 .alerts-grid {
   display: grid;
@@ -801,10 +999,19 @@ h1 {
   gap: 12px;
   min-width: 0;
   padding: 16px;
+  color: inherit;
+  text-decoration: none;
   background: #FFFFFF;
   border: 1px solid #E6E7E1;
   border-left: 3px solid #B08D57;
   border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.alert-card:hover {
+  border-color: #B08D57;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(7, 24, 39, 0.06);
 }
 
 .alert-icon {
@@ -818,7 +1025,7 @@ h1 {
   border-radius: 10px;
 }
 
-.alert-card > div:nth-child(2) {
+.alert-description {
   flex: 1;
   min-width: 0;
 }
@@ -839,6 +1046,40 @@ h1 {
   color: #071827;
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 21px;
+}
+
+/* MODIFICADO POR BRAYAN: OTROS MODULOS */
+.other-modules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.module-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  color: #071827;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  background: #FFFFFF;
+  border: 1px solid #E6E7E1;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.module-link:hover {
+  border-color: #B08D57;
+  color: #00A84F;
+  transform: translateY(-2px);
+}
+
+.module-link span {
+  margin-left: auto;
+  color: #B08D57;
+  font-size: 19px;
 }
 
 /* PIE */
@@ -869,14 +1110,16 @@ h1 {
 
 /* RESPONSIVE */
 @media (max-width: 1100px) {
-  .stats-grid {
+  .stats-grid,
+  .quick-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 750px) {
   .activity-grid,
-  .alerts-grid {
+  .alerts-grid,
+  .other-modules {
     grid-template-columns: 1fr;
   }
 
@@ -892,7 +1135,8 @@ h1 {
 }
 
 @media (max-width: 500px) {
-  .stats-grid {
+  .stats-grid,
+  .quick-actions {
     grid-template-columns: 1fr;
   }
 

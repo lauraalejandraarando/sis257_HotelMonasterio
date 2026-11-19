@@ -1,6 +1,7 @@
 
 <template>
   <div class="rv-page">
+    <!-- Modificado por Brayan: encabezado de reservas -->
     <header class="rv-header">
       <div>
         <span class="rv-eyebrow">GESTIÓN HOTELERA</span>
@@ -72,6 +73,7 @@
       </div>
 
       <div v-if="cargando" class="rv-empty">Cargando reservas...</div>
+
       <div v-else-if="reservasFiltradas.length === 0" class="rv-empty">
         <CalendarDays :size="34" />
         <strong>No hay reservas para mostrar</strong>
@@ -142,6 +144,7 @@
           </tbody>
         </table>
       </div>
+
       <div class="rv-table-footer">
         Mostrando {{ reservasFiltradas.length }} de {{ reservas.length }} reservas
       </div>
@@ -154,7 +157,11 @@
           <div>
             <span class="rv-eyebrow">GESTIÓN DE RESERVAS</span>
             <h2>{{ modoEdicion ? 'Editar reserva' : 'Registrar reserva' }}</h2>
-            <p>{{ modoEdicion ? 'Actualiza los datos de la reserva.' : 'Completa los datos para registrar una nueva reserva.' }}</p>
+            <p>
+              {{ modoEdicion
+                ? 'Actualiza los datos de la reserva.'
+                : 'Completa los datos para registrar una nueva reserva.' }}
+            </p>
           </div>
           <button class="rv-close" @click="cerrarFormulario"><X /></button>
         </div>
@@ -164,9 +171,9 @@
             <h3><Users :size="17" /> Datos del huésped</h3>
             <div class="rv-field">
               <label>Huésped *</label>
-              <select v-model.number="form.huespedId" required>
+              <select v-model="form.huespedId" required>
                 <option value="" disabled>Selecciona un huésped</option>
-                <option v-for="h in huespedesActivos" :key="h.id" :value="h.id">
+                <option v-for="h in huespedesActivos" :key="h.id" :value="String(h.id)">
                   {{ nombreHuesped(h) }} — {{ h.numeroDocumento }}
                 </option>
               </select>
@@ -181,22 +188,41 @@
             <div class="rv-form-grid">
               <div class="rv-field">
                 <label>Fecha de entrada *</label>
-                <input type="date" v-model="form.fechaEntrada" :min="fechaHoy" required />
+                <input
+                  type="date"
+                  v-model="form.fechaEntrada"
+                  :min="fechaHoy"
+                  required
+                />
               </div>
               <div class="rv-field">
                 <label>Fecha de salida *</label>
-                <input type="date" v-model="form.fechaSalida" :min="form.fechaEntrada || fechaHoy" required />
+                <input
+                  type="date"
+                  v-model="form.fechaSalida"
+                  :min="form.fechaEntrada || fechaHoy"
+                  required
+                />
               </div>
               <div class="rv-field">
                 <label>Cantidad de huéspedes *</label>
-                <input type="number" v-model.number="form.cantidadHuespedes" min="1" required />
+                <input
+                  type="number"
+                  v-model.number="form.cantidadHuespedes"
+                  min="1"
+                  required
+                />
               </div>
             </div>
           </div>
 
+          <!-- Modificado por Brayan: galería visual de habitaciones -->
           <div class="rv-form-section">
             <h3><BedDouble :size="17" /> Selección de habitaciones</h3>
-            <p class="rv-help">Selecciona una o varias habitaciones disponibles para las fechas solicitadas.</p>
+            <p class="rv-help">
+              Explora las habitaciones y selecciona una o varias para las fechas solicitadas.
+              Las fotografías son ilustrativas.
+            </p>
 
             <div v-if="habitacionesDisponibles.length === 0" class="rv-inline-empty">
               No hay habitaciones disponibles para seleccionar.
@@ -207,21 +233,73 @@
                 v-for="hab in habitacionesDisponibles"
                 :key="hab.id"
                 class="rv-room-option"
-                :class="{ selected: form.habitacionesIds.includes(hab.id) }"
+                :class="{
+                  selected: form.habitacionesIds.includes(Number(hab.id))
+                }"
               >
-                <input
-                  type="checkbox"
-                  :value="hab.id"
-                  v-model="form.habitacionesIds"
-                />
-                <div>
-                  <strong>Habitación {{ hab.numero }}</strong>
-                  <span>{{ hab.tipoHabitacion?.nombre || 'Sin tipo' }} · Piso {{ hab.piso }}</span>
-                  <small>Capacidad: {{ hab.tipoHabitacion?.capacidad || 0 }} personas</small>
+                <div class="rv-room-image">
+                  <img
+                    :src="imagenHabitacion(hab)"
+                    :alt="`Habitación ${hab.numero}`"
+                    loading="lazy"
+                    @error="imagenError"
+                  />
+
+                  <span class="rv-room-number">
+                    Habitación {{ hab.numero }}
+                  </span>
+
+                  <span
+                    v-if="form.habitacionesIds.includes(Number(hab.id))"
+                    class="rv-room-selected"
+                  >
+                    <CheckCircle2 :size="13" />
+                    Seleccionada
+                  </span>
                 </div>
-                <b>{{ moneda(hab.tipoHabitacion?.precioNoche) }} / noche</b>
+
+                <div class="rv-room-content">
+                  <div class="rv-room-heading">
+                    <div>
+                      <strong>{{ hab.tipoHabitacion?.nombre || 'Sin tipo' }}</strong>
+                      <span class="rv-room-floor">Piso {{ hab.piso ?? 'No especificado' }}</span>
+                    </div>
+
+                    <input
+                      type="checkbox"
+                      :value="Number(hab.id)"
+                      v-model="form.habitacionesIds"
+                      :aria-label="`Seleccionar habitación ${hab.numero}`"
+                    />
+                  </div>
+
+                  <div class="rv-room-information">
+                    <span>
+                      <Users :size="14" />
+                      {{ hab.tipoHabitacion?.capacidad || 0 }} personas
+                    </span>
+                    <span>
+                      <BedDouble :size="14" />
+                      Habitación {{ hab.numero }}
+                    </span>
+                  </div>
+
+                  <div class="rv-room-price">
+                    <div>
+                      <strong>{{ moneda(hab.tipoHabitacion?.precioNoche) }}</strong>
+                      <small>por noche</small>
+                    </div>
+
+                    <span class="rv-room-select-label">
+                      {{ form.habitacionesIds.includes(Number(hab.id))
+                        ? 'Elegida'
+                        : 'Seleccionar' }}
+                    </span>
+                  </div>
+                </div>
               </label>
             </div>
+
             <div class="rv-capacity" v-if="form.habitacionesIds.length">
               Capacidad seleccionada: {{ capacidadSeleccionada }} personas
               <span v-if="form.cantidadHuespedes > capacidadSeleccionada">
@@ -233,7 +311,12 @@
           <div class="rv-form-section">
             <h3>Observaciones</h3>
             <div class="rv-field">
-              <textarea v-model="form.observaciones" rows="3" maxlength="500" placeholder="Observaciones adicionales (opcional)"></textarea>
+              <textarea
+                v-model="form.observaciones"
+                rows="3"
+                maxlength="500"
+                placeholder="Observaciones adicionales (opcional)"
+              ></textarea>
             </div>
           </div>
 
@@ -249,13 +332,24 @@
           </div>
 
           <div class="rv-modal-footer">
-            <button type="button" class="rv-secondary" @click="cerrarFormulario">Cancelar</button>
+            <button type="button" class="rv-secondary" @click="cerrarFormulario">
+              Cancelar
+            </button>
             <button
               type="submit"
               class="rv-primary"
-              :disabled="guardando || !form.huespedId || !form.habitacionesIds.length || form.cantidadHuespedes > capacidadSeleccionada"
+              :disabled="
+                guardando ||
+                !form.huespedId ||
+                !form.habitacionesIds.length ||
+                form.cantidadHuespedes > capacidadSeleccionada
+              "
             >
-              {{ guardando ? 'Guardando...' : modoEdicion ? 'Guardar cambios' : 'Registrar reserva' }}
+              {{ guardando
+                ? 'Guardando...'
+                : modoEdicion
+                  ? 'Guardar cambios'
+                  : 'Registrar reserva' }}
             </button>
           </div>
         </form>
@@ -275,12 +369,15 @@
         </div>
 
         <div v-if="cargandoDetalle" class="rv-empty">Consultando información...</div>
+
         <template v-else-if="reservaSeleccionada">
           <div class="rv-detail-top">
             <span class="rv-status" :class="claseEstado(reservaSeleccionada.estado)">
               {{ etiquetaEstado(reservaSeleccionada.estado) }}
             </span>
-            <span class="rv-detail-date">Registro: {{ fechaCorta(reservaSeleccionada.fechaCreacion) }}</span>
+            <span class="rv-detail-date">
+              Registro: {{ fechaCorta(reservaSeleccionada.fechaCreacion) }}
+            </span>
           </div>
 
           <div class="rv-detail-grid">
@@ -335,9 +432,14 @@
                 </div>
               </div>
             </div>
-            <div v-else class="rv-inline-empty">No se pudo consultar el estado de cuenta.</div>
+            <div v-else class="rv-inline-empty">
+              No se pudo consultar el estado de cuenta.
+            </div>
 
-            <div v-if="reservaSeleccionada.fechaLimitePago && reservaSeleccionada.estado === 'pendiente'" class="rv-deadline">
+            <div
+              v-if="reservaSeleccionada.fechaLimitePago && reservaSeleccionada.estado === 'pendiente'"
+              class="rv-deadline"
+            >
               <Clock3 :size="16" />
               Plazo para el anticipo: {{ fechaHora(reservaSeleccionada.fechaLimitePago) }}
             </div>
@@ -403,9 +505,17 @@
 
           <div class="rv-field">
             <label>Monto a registrar (Bs) *</label>
-            <input type="number" v-model.number="pagoForm.monto" min="0.01" step="0.01" :max="estadoCuenta?.saldoPendiente" required />
+            <input
+              type="number"
+              v-model.number="pagoForm.monto"
+              min="0.01"
+              step="0.01"
+              :max="estadoCuenta?.saldoPendiente"
+              required
+            />
             <small>Mínimo para confirmar: {{ moneda(estadoCuenta?.minimoParaConfirmar) }}</small>
           </div>
+
           <div class="rv-field">
             <label>Método de pago *</label>
             <select v-model="pagoForm.metodoPago" required>
@@ -414,6 +524,7 @@
               <option value="tarjeta">Tarjeta</option>
             </select>
           </div>
+
           <div class="rv-field">
             <label>Tipo de pago *</label>
             <select v-model="pagoForm.tipoPago" required>
@@ -421,10 +532,12 @@
               <option value="saldo">Pago de saldo</option>
             </select>
           </div>
+
           <div class="rv-field">
             <label>Referencia (opcional)</label>
             <input v-model="pagoForm.referencia" maxlength="100" placeholder="Referencia de demostración" />
           </div>
+
           <div class="rv-field">
             <label>Observaciones</label>
             <textarea v-model="pagoForm.observaciones" rows="2" placeholder="Pago simulado para demostración"></textarea>
@@ -436,8 +549,19 @@
           </div>
 
           <div class="rv-modal-footer">
-            <button type="button" class="rv-secondary" @click="cerrarPago">Cancelar</button>
-            <button type="submit" class="rv-primary" :disabled="guardandoPago || !pagoForm.monto || pagoForm.monto <= 0 || pagoForm.monto > Number(estadoCuenta?.saldoPendiente)">
+            <button type="button" class="rv-secondary" @click="cerrarPago">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="rv-primary"
+              :disabled="
+                guardandoPago ||
+                !pagoForm.monto ||
+                pagoForm.monto <= 0 ||
+                pagoForm.monto > Number(estadoCuenta?.saldoPendiente)
+              "
+            >
               {{ guardandoPago ? 'Registrando...' : 'Registrar pago' }}
             </button>
           </div>
@@ -481,7 +605,14 @@ const modoEdicion = ref(false)
 const reservaSeleccionada = ref(null)
 const mensaje = ref({ texto: '', tipo: 'success' })
 
-const fechaHoy = new Date().toISOString().slice(0, 10)
+// Modificado por Brayan: fecha local para evitar desfases por UTC.
+const fechaHoy = (() => {
+  const fecha = new Date()
+  const anio = fecha.getFullYear()
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+  const dia = String(fecha.getDate()).padStart(2, '0')
+  return `${anio}-${mes}-${dia}`
+})()
 
 const formularioInicial = () => ({
   huespedId: '',
@@ -502,37 +633,82 @@ const pagoForm = ref({
   observaciones: 'Pago simulado para demostración.'
 })
 
+// Modificado por Brayan: imágenes ilustrativas según el tipo de habitación.
+const imagenHabitacionFallback =
+  'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=85'
+
+function imagenHabitacion(habitacion) {
+  const tipo = String(habitacion?.tipoHabitacion?.nombre || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  if (tipo.includes('suite')) {
+    return 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=900&q=85'
+  }
+
+  if (tipo.includes('matrimonial')) {
+    return 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=85'
+  }
+
+  if (tipo.includes('triple')) {
+    return 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=900&q=85'
+  }
+
+  if (tipo.includes('doble')) {
+    return 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=85'
+  }
+
+  if (tipo.includes('individual') || tipo.includes('simple')) {
+    return 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=85'
+  }
+
+  return imagenHabitacionFallback
+}
+
+// Modificado por Brayan: imagen alternativa si falla la fotografía externa.
+function imagenError(evento) {
+  evento.target.onerror = null
+  evento.target.src = imagenHabitacionFallback
+}
+
 const huespedesActivos = computed(() =>
   huespedes.value.filter(h => h.estado === true)
 )
 
 const habitacionesDisponibles = computed(() => {
   const idsActuales = modoEdicion.value
-    ? (reservaSeleccionada.value?.detalles || []).map(d => d.habitacion?.id)
+    ? (reservaSeleccionada.value?.detalles || [])
+        .map(d => Number(d.habitacion?.id))
     : []
 
   return habitaciones.value.filter(h =>
     (h.estado === 'disponible' && h.tipoHabitacion?.activo !== false) ||
-    (modoEdicion.value && idsActuales.includes(h.id))
+    (modoEdicion.value && idsActuales.includes(Number(h.id)))
   )
 })
 
+// Modificado por Brayan: comparación de IDs numéricos.
 const capacidadSeleccionada = computed(() =>
   habitacionesDisponibles.value
-    .filter(h => form.value.habitacionesIds.includes(h.id))
-    .reduce((total, h) => total + Number(h.tipoHabitacion?.capacidad || 0), 0)
+    .filter(h => form.value.habitacionesIds.includes(Number(h.id)))
+    .reduce((total, h) =>
+      total + Number(h.tipoHabitacion?.capacidad || 0), 0)
 )
 
 const nochesFormulario = computed(() => {
   if (!form.value.fechaEntrada || !form.value.fechaSalida) return 0
+
   const entrada = new Date(`${form.value.fechaEntrada}T00:00:00`)
   const salida = new Date(`${form.value.fechaSalida}T00:00:00`)
+
   return Math.round((salida - entrada) / 86400000)
 })
 
+// Modificado por Brayan: cálculo del total con los IDs normalizados.
 const totalFormulario = computed(() =>
   habitacionesDisponibles.value
-    .filter(h => form.value.habitacionesIds.includes(h.id))
+    .filter(h => form.value.habitacionesIds.includes(Number(h.id)))
     .reduce((total, h) =>
       total + Number(h.tipoHabitacion?.precioNoche || 0) * nochesFormulario.value, 0)
 )
@@ -542,18 +718,23 @@ const reservasFiltradas = computed(() => {
 
   return reservas.value.filter(r => {
     const nombre = nombreHuesped(r.huesped).toLowerCase()
+    const documento = String(r.huesped?.numeroDocumento || '').toLowerCase()
+
     const coincideTexto =
       !texto ||
       String(r.codigoReserva || '').toLowerCase().includes(texto) ||
-      nombre.includes(texto)
+      nombre.includes(texto) ||
+      documento.includes(texto)
 
     const coincideEstado = !filtroEstado.value || r.estado === filtroEstado.value
+
     return coincideTexto && coincideEstado
   })
 })
 
 function mostrarMensaje(texto, tipo = 'success') {
   mensaje.value = { texto, tipo }
+
   window.setTimeout(() => {
     if (mensaje.value.texto === texto) mensaje.value.texto = ''
   }, 5000)
@@ -582,6 +763,7 @@ async function peticion(url, opciones = {}) {
     const error = Array.isArray(datos?.message)
       ? datos.message.join(', ')
       : datos?.message || datos?.error || 'Ocurrió un error en el servidor.'
+
     throw new Error(error)
   }
 
@@ -590,6 +772,7 @@ async function peticion(url, opciones = {}) {
 
 async function cargarDatos() {
   cargando.value = true
+
   try {
     const [listaReservas, listaHuespedes, listaHabitaciones] = await Promise.all([
       peticion('/reservas'),
@@ -609,6 +792,7 @@ async function cargarDatos() {
 
 function nombreHuesped(huesped) {
   if (!huesped) return 'Huésped no disponible'
+
   return `${huesped.nombres || ''} ${huesped.apellidos || ''}`.trim()
 }
 
@@ -624,6 +808,7 @@ function etiquetaEstado(estado) {
     'en curso': 'En curso',
     finalizada: 'Finalizada'
   }
+
   return etiquetas[estado] || estado || 'Sin estado'
 }
 
@@ -643,14 +828,20 @@ function moneda(valor) {
 
 function fechaCorta(valor) {
   if (!valor) return '—'
+
   const fecha = String(valor).slice(0, 10).split('-')
   if (fecha.length !== 3) return valor
+
   return `${fecha[2]}/${fecha[1]}/${fecha[0]}`
 }
 
 function fechaHora(valor) {
   if (!valor) return '—'
-  return new Date(valor).toLocaleString('es-BO', {
+
+  const fecha = new Date(valor)
+  if (Number.isNaN(fecha.getTime())) return '—'
+
+  return fecha.toLocaleString('es-BO', {
     dateStyle: 'short',
     timeStyle: 'short'
   })
@@ -658,13 +849,16 @@ function fechaHora(valor) {
 
 function calcularNoches(reserva) {
   if (!reserva?.fechaEntrada || !reserva?.fechaSalida) return 0
+
   const entrada = new Date(`${String(reserva.fechaEntrada).slice(0, 10)}T00:00:00`)
   const salida = new Date(`${String(reserva.fechaSalida).slice(0, 10)}T00:00:00`)
+
   return Math.max(0, Math.round((salida - entrada) / 86400000))
 }
 
 function calcularTotal(reserva) {
   const noches = calcularNoches(reserva)
+
   return (reserva.detalles || []).reduce((total, detalle) =>
     total + Number(detalle.precioNoche || 0) * noches, 0)
 }
@@ -699,12 +893,12 @@ function abrirEdicion(reserva) {
   reservaSeleccionada.value = reserva
 
   form.value = {
-    huespedId: reserva.huesped?.id || '',
+    huespedId: String(reserva.huesped?.id || ''),
     fechaEntrada: String(reserva.fechaEntrada).slice(0, 10),
     fechaSalida: String(reserva.fechaSalida).slice(0, 10),
-    cantidadHuespedes: reserva.cantidadHuespedes,
+    cantidadHuespedes: Number(reserva.cantidadHuespedes || 1),
     habitacionesIds: (reserva.detalles || [])
-      .map(d => d.habitacion?.id)
+      .map(d => Number(d.habitacion?.id))
       .filter(Boolean),
     observaciones: reserva.observaciones || ''
   }
@@ -718,6 +912,21 @@ function cerrarFormulario() {
 }
 
 async function guardarReserva() {
+  if (!form.value.huespedId) {
+    mostrarMensaje('Selecciona un huésped.', 'error')
+    return
+  }
+
+  if (!form.value.fechaEntrada || !form.value.fechaSalida) {
+    mostrarMensaje('Completa las fechas de entrada y salida.', 'error')
+    return
+  }
+
+  if (form.value.fechaEntrada < fechaHoy && !modoEdicion.value) {
+    mostrarMensaje('La fecha de entrada no puede ser anterior a hoy.', 'error')
+    return
+  }
+
   if (form.value.fechaSalida <= form.value.fechaEntrada) {
     mostrarMensaje('La fecha de salida debe ser posterior a la fecha de entrada.', 'error')
     return
@@ -725,6 +934,11 @@ async function guardarReserva() {
 
   if (!form.value.habitacionesIds.length) {
     mostrarMensaje('Selecciona al menos una habitación.', 'error')
+    return
+  }
+
+  if (Number(form.value.cantidadHuespedes) < 1) {
+    mostrarMensaje('La cantidad de huéspedes debe ser como mínimo uno.', 'error')
     return
   }
 
@@ -750,13 +964,17 @@ async function guardarReserva() {
         method: 'PATCH',
         body: JSON.stringify(datos)
       })
+
       mostrarMensaje('Reserva actualizada correctamente.')
     } else {
       await peticion('/reservas', {
         method: 'POST',
         body: JSON.stringify(datos)
       })
-      mostrarMensaje('Reserva registrada correctamente. Recuerda que está pendiente hasta alcanzar el anticipo mínimo.')
+
+      mostrarMensaje(
+        'Reserva registrada correctamente. Recuerda que está pendiente hasta alcanzar el anticipo mínimo.'
+      )
     }
 
     cerrarFormulario()
@@ -784,7 +1002,13 @@ async function verDetalle(reserva) {
 
     reservaSeleccionada.value = detalle
     estadoCuenta.value = cuenta
-    pagos.value = historial?.pagos || []
+
+    // Modificado por Brayan: admite las dos respuestas habituales del historial.
+    pagos.value = Array.isArray(historial)
+      ? historial
+      : Array.isArray(historial?.pagos)
+        ? historial.pagos
+        : []
   } catch (error) {
     mostrarMensaje(`No se pudo consultar el detalle: ${error.message}`, 'error')
   } finally {
@@ -809,6 +1033,7 @@ async function cancelarReserva(reserva) {
 
   try {
     await peticion(`/reservas/${reserva.id}`, { method: 'DELETE' })
+
     mostrarMensaje('Reserva cancelada. El backend aplicó las reglas correspondientes.')
     await cargarDatos()
   } catch (error) {
@@ -824,6 +1049,7 @@ function abrirPago() {
     referencia: '',
     observaciones: 'Pago simulado para demostración.'
   }
+
   mostrarPago.value = true
 }
 
@@ -1206,6 +1432,7 @@ onMounted(cargarDatos)
 
 .rv-message.success { background: #e6f7ed; color: #176c3e; }
 .rv-message.error { background: #fdebea; color: #a8322d; }
+
 .rv-message button {
   border: 0;
   background: transparent;
@@ -1307,56 +1534,174 @@ onMounted(cargarDatos)
 
 .rv-help { margin: -5px 0 12px; }
 
+/* Modificado por Brayan: galería visual de habitaciones */
+
 .rv-room-options {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 9px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 15px;
 }
 
 .rv-room-option {
-  border: 1px solid #e3e9eb;
-  border-radius: 9px;
-  padding: 12px;
   display: flex;
-  align-items: flex-start;
-  gap: 9px;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #e3e9eb;
+  border-radius: 13px;
+  background: #fff;
   cursor: pointer;
+  transition: .25s ease;
   min-width: 0;
+}
+
+.rv-room-option:hover {
+  transform: translateY(-3px);
+  border-color: #b08d57;
+  box-shadow: 0 9px 24px #07182712;
 }
 
 .rv-room-option.selected {
-  border-color: #12a65a;
-  background: #f0fbf4;
+  border: 2px solid #0b9850;
+  background: #f3fbf6;
+  box-shadow: 0 0 0 3px #00b95712;
 }
 
-.rv-room-option input {
-  accent-color: #079b4d;
-  margin-top: 4px;
+.rv-room-image {
+  height: 175px;
+  position: relative;
+  overflow: hidden;
+  background: #e9edef;
 }
 
-.rv-room-option div {
-  flex: 1;
-  min-width: 0;
-}
-
-.rv-room-option strong,
-.rv-room-option span,
-.rv-room-option small {
+.rv-room-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
+  transition: transform .4s ease;
 }
 
-.rv-room-option strong { font-size: 11px; }
-.rv-room-option span,
-.rv-room-option small {
-  color: #7c8991;
-  font-size: 10px;
-  margin-top: 4px;
+.rv-room-option:hover .rv-room-image img {
+  transform: scale(1.06);
 }
 
-.rv-room-option b {
+.rv-room-number {
+  position: absolute;
+  left: 11px;
+  top: 11px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #071827e8;
+  color: #fff;
   font-size: 10px;
-  white-space: nowrap;
+  font-weight: 800;
+}
+
+.rv-room-selected {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #0b9850;
+  color: white;
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rv-room-content {
+  padding: 14px;
+}
+
+.rv-room-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rv-room-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rv-room-heading strong {
+  font-size: 14px;
+  color: #102c3c;
+}
+
+.rv-room-floor {
+  font-size: 10px;
+  color: #89949c;
+}
+
+.rv-room-heading input {
+  width: 18px;
+  height: 18px;
+  accent-color: #0b9850;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.rv-room-information {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 13px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.rv-room-information span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #71808a;
+  font-size: 10px;
+}
+
+.rv-room-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rv-room-price > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rv-room-price strong {
   color: #12633b;
+  font-size: 16px;
+}
+
+.rv-room-price small {
+  color: #89949c;
+  font-size: 10px;
+}
+
+.rv-room-select-label {
+  color: #087b3c;
+  font-size: 10px;
+  font-weight: 800;
+  background: #e6f7ed;
+  padding: 7px 10px;
+  border-radius: 6px;
+}
+
+.rv-room-option.selected .rv-room-select-label {
+  background: #0b9850;
+  color: #fff;
 }
 
 .rv-capacity {
@@ -1390,7 +1735,10 @@ onMounted(cargarDatos)
   margin-bottom: 5px;
 }
 
-.rv-estimate strong { color: #00ff66; font-size: 16px; }
+.rv-estimate strong {
+  color: #00ff66;
+  font-size: 16px;
+}
 
 .rv-modal-footer {
   display: flex;
@@ -1429,7 +1777,12 @@ onMounted(cargarDatos)
   display: block;
 }
 
-.rv-detail-card span { color: #89949c; font-size: 10px; margin-bottom: 8px; }
+.rv-detail-card span {
+  color: #89949c;
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+
 .rv-detail-card strong { font-size: 12px; color: #142e3d; }
 .rv-detail-card small { font-size: 10px; color: #7d8991; margin-top: 5px; }
 
@@ -1462,10 +1815,20 @@ onMounted(cargarDatos)
 
 .rv-detail-rooms strong,
 .rv-payments strong { font-size: 11px; }
+
 .rv-detail-rooms small,
-.rv-payments small { color: #89949c; font-size: 10px; margin-top: 4px; }
+.rv-payments small {
+  color: #89949c;
+  font-size: 10px;
+  margin-top: 4px;
+}
+
 .rv-detail-rooms b,
-.rv-payments b { color: #12633b; font-size: 11px; white-space: nowrap; }
+.rv-payments b {
+  color: #12633b;
+  font-size: 11px;
+  white-space: nowrap;
+}
 
 .rv-account {
   display: grid;
@@ -1540,7 +1903,10 @@ onMounted(cargarDatos)
   margin-bottom: 15px;
 }
 
-.rv-observations p { color: #75838c; margin: 6px 0 0; }
+.rv-observations p {
+  color: #75838c;
+  margin: 6px 0 0;
+}
 
 .rv-payment-modal { max-width: 500px; }
 
@@ -1583,16 +1949,35 @@ onMounted(cargarDatos)
 }
 
 @media (max-width: 650px) {
-  .rv-header { align-items: flex-start; flex-direction: column; }
+  .rv-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .rv-stats { grid-template-columns: 1fr 1fr; }
   .rv-filters { flex-direction: column; }
   .rv-filters select { width: 100%; }
+
   .rv-form-grid,
-  .rv-room-options,
   .rv-detail-grid,
-  .rv-account { grid-template-columns: 1fr; }
+  .rv-account {
+    grid-template-columns: 1fr;
+  }
+
+  .rv-room-options {
+    grid-template-columns: 1fr;
+  }
+
+  .rv-room-image { height: 190px; }
   .rv-modal { padding: 18px; }
   .rv-estimate { flex-direction: column; }
   .rv-progress-wrap { grid-column: auto; }
+}
+
+@media (max-width: 400px) {
+  .rv-stats { grid-template-columns: 1fr; }
+  .rv-detail-top { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .rv-modal-footer { flex-wrap: wrap; }
+  .rv-modal-footer button { flex: 1; }
 }
 </style>
